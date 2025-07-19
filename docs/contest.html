@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🎁 Активные розыгрыши</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        
+        .contest-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .contest-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .contest-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .participate-btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-btn" onclick="goBack()">←</button>
+    
+    <div class="header">
+        <h1>🎁 Активные розыгрыши</h1>
+        <p>Участвуйте и выигрывайте призы!</p>
+    </div>
+    
+    <div id="contests-list"></div>
+    
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+        tg.setHeaderColor('#1e3c72');
+        
+        function goBack() {
+            window.history.back();
+        }
+        
+        function openTelegramBot() {
+            if (typeof tg.HapticFeedback !== 'undefined') {
+                tg.HapticFeedback.impactOccurred('medium');
+            }
+            // Закрываем Mini App, возвращаемся к боту
+            tg.close();
+        }
+        
+        // Загрузка розыгрышей
+        async function loadContests() {
+            try {
+                const response = await fetch('./api/contests.json');
+                const data = await response.json();
+                displayContests(data.contests.filter(c => c.status === 'active'));
+            } catch (error) {
+                console.error('Error loading contests:', error);
+            }
+        }
+        
+        function displayContests(contests) {
+            const container = document.getElementById('contests-list');
+            container.innerHTML = contests.map(contest => `
+                <div class="contest-card">
+                    <div class="contest-title">${contest.title}</div>
+                    <div class="contest-stats">
+                        <span>👥 ${contest.total_participants} участников</span>
+                        <span class="status-active">Активен</span>
+                    </div>
+                    <p>${contest.description}</p>
+                    <button class="participate-btn" onclick="openTelegramBot()">
+                        🚀 Участвовать в боте
+                    </button>
+                </div>
+            `).join('');
+        }
+        
+        // Загрузка при запуске
+        loadContests();
+    </script>
+</body>
+</html>

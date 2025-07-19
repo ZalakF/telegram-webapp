@@ -1,0 +1,10 @@
+title: Contest System
+description: Telegram Contest Bot Web Interface
+theme: minima
+plugins:
+  - jekyll-relative-links
+relative_links:
+  enabled: true
+  collections: true
+include:
+  - README.md

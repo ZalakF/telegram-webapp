@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎁 {{ giveaway.title }} - Giveaway Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .giveaway-detail {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .giveaway-detail::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+
+        .prize-image {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(45deg, #f0f2f5, #e1e5e9);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6rem;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .giveaway-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+
+        .description-section {
+            background: rgba(102, 126, 234, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 30px;
+        }
+
+        .description-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .instructions {
+            background: rgba(40, 167, 69, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 4px solid #28a745;
+            margin-bottom: 30px;
+        }
+
+        .instructions h3 {
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+        }
+
+        .participate-section {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(45deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+
+        .telegram-btn {
+            display: inline-block;
+            background: linear-gradient(45deg, #0088cc, #00a0dc);
+            color: white;
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 136, 204, 0.3);
+        }
+
+        .telegram-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 136, 204, 0.4);
+        }
+
+        .warning {
+            background: rgba(255, 193, 7, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 4px solid #ffc107;
+            margin-top: 20px;
+        }
+
+        .warning-icon {
+            color: #ffc107;
+            font-size: 1.2rem;
+            margin-right: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 10px;
+            }
+            
+            .giveaway-detail {
+                padding: 25px;
+            }
+            
+            .giveaway-title {
+                font-size: 2rem;
+            }
+            
+            .prize-image {
+                height: 250px;
+                font-size: 4rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="history.back()">←</button>
+        <h1>🎁 {{ giveaway.title }}</h1>
+    </div>
+
+    <div class="container">
+        <div class="giveaway-detail">
+            <div class="prize-image">
+                🎁
+            </div>
+            
+            <div class="giveaway-title">
+                {{ giveaway.title }}
+            </div>
+            
+            <div class="status-badge">
+                ✅ Активен
+            </div>
+            
+            {% if giveaway.description %}
+            <div class="description-section">
+                <h3>📝 Описание</h3>
+                <p>{{ giveaway.description }}</p>
+            </div>
+            {% endif %}
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">{{ giveaway.participant_count or 0 }}</div>
+                    <div class="stat-label">Участников</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ giveaway.created_at[:10] }}</div>
+                    <div class="stat-label">Дата создания</div>
+                </div>
+                {% if giveaway.end_date %}
+                <div class="stat-card">
+                    <div class="stat-value">{{ giveaway.end_date[:10] }}</div>
+                    <div class="stat-label">Окончание</div>
+                </div>
+                {% endif %}
+                <div class="stat-card">
+                    <div class="stat-value">1</div>
+                    <div class="stat-label">Победитель</div>
+                </div>
+            </div>
+            
+            <div class="instructions">
+                <h3>🚀 Как участвовать</h3>
+                <ol>
+                    <li>Нажмите кнопку "Участвовать в Telegram" ниже</li>
+                    <li>Откроется наш Telegram-бот</li>
+                    <li>Нажмите /start для начала</li>
+                    <li>Следуйте инструкциям бота</li>
+                    <li>Отправьте требуемый скриншот</li>
+                    <li>Дождитесь результатов розыгрыша!</li>
+                </ol>
+            </div>
+            
+            <div class="participate-section">
+                <h3 style="margin-bottom: 20px;">🎯 Готовы участвовать?</h3>
+                <a href="https://t.me/YourBotUsername" class="telegram-btn">
+                    📱 Участвовать в Telegram
+                </a>
+                
+                <div class="warning">
+                    <span class="warning-icon">⚠️</span>
+                    <strong>Важно:</strong> Участие возможно только через Telegram-бота. 
+                    Убедитесь, что вы выполнили все условия розыгрыша.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Анимация при загрузке
+            const detail = document.querySelector('.giveaway-detail');
+            detail.style.opacity = '0';
+            detail.style.transform = 'translateY(30px)';
+            
+            setTimeout(() => {
+                detail.style.transition = 'all 0.6s ease';
+                detail.style.opacity = '1';
+                detail.style.transform = 'translateY(0)';
+            }, 100);
+            
+            // Обработка клика по кнопке Telegram
+            const telegramBtn = document.querySelector('.telegram-btn');
+            telegramBtn.addEventListener('click', function(e) {
+                // Добавляем параметр розыгрыша к ссылке
+                const giveawayId = {{ giveaway.id }};
+                const url = this.href + '?start=giveaway_' + giveawayId;
+                this.href = url;
+            });
+        });
+    </script>
+</body>
+</html>

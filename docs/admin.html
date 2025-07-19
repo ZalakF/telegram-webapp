@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Admin Panel - Giveaway Hub</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1e3c72">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .admin-greeting {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .stats-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .stats-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 123, 255, 0.3);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .giveaways-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .new-giveaway-btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .new-giveaway-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .giveaways-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .giveaway-admin-card {
+            background: rgba(248, 249, 250, 0.8);
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .giveaway-admin-card:hover {
+            border-color: #007bff;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            flex: 1;
+        }
+
+        .status-indicator {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-completed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .card-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 10px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .giveaways-list {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+
+            .card-actions {
+                justify-content: center;
+            }
+
+            .modal-content {
+                margin: 10% auto;
+                width: 95%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔐 Admin Panel</h1>
+        <p class="admin-greeting">👤 Привет, Admin</p>
+    </div>
+
+    <div class="container">
+        <!-- Статистика -->
+        <div class="stats-section">
+            <h2 class="stats-title">📊 ОБЩАЯ СТАТИСТИКА</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="active-count">-</div>
+                    <div class="stat-label">Активных розыгрышей</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="participants-count">-</div>
+                    <div class="stat-label">Участников всего</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="completed-count">-</div>
+                    <div class="stat-label">Завершено розыгрышей</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Розыгрыши -->
+        <div class="giveaways-section">
+            <div class="section-header">
+                <h2 class="section-title">🎁 РОЗЫГРЫШИ</h2>
+                <button class="new-giveaway-btn" onclick="openNewGiveawayModal()">
+                    ➕ Новый розыгрыш
+                </button>
+            </div>
+
+            <div id="giveaways-loading" class="loading">
+                <div class="spinner"></div>
+                <p>Загрузка розыгрышей...</p>
+            </div>
+
+            <div id="giveaways-list" class="giveaways-list" style="display: none;">
+                <!-- Список розыгрышей будет загружен динамически -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно создания розыгрыша -->
+    <div id="newGiveawayModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">➕ Новый розыгрыш</h2>
+                <span class="close" onclick="closeNewGiveawayModal()">&times;</span>
+            </div>
+            
+            <form id="newGiveawayForm">
+                <div class="form-group">
+                    <label class="form-label">Название:</label>
+                    <input type="text" class="form-control" id="title" name="title" required
+                           placeholder="iPhone 15 Pro Max">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Описание:</label>
+                    <textarea class="form-control" id="description" name="description"
+                              placeholder="Разыгрываем новенький iPhone! Участвуйте и выигрывайте!"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Фото приза (URL):</label>
+                    <input type="url" class="form-control" id="image_url" name="image_url"
+                           placeholder="https://example.com/photo.jpg">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Ключевые слова (через запятую):</label>
+                    <input type="text" class="form-control" id="keywords" name="keywords"
+                           placeholder="подписка, канал, username">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Дата окончания:</label>
+                    <input type="datetime-local" class="form-control" id="end_date" name="end_date">
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeNewGiveawayModal()">
+                        Отмена
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        💾 Создать розыгрыш
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Telegram Mini App setup
+        let tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+        tg.setHeaderColor('#1e3c72');
+        
+        // API базовый URL (статические данные для GitHub Pages)
+        const API_URL = './api';
+        
+        // Загрузка данных при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStats();
+            loadGiveaways();
+            
+            // Обновление каждые 30 секунд
+            setInterval(() => {
+                loadStats();
+                loadGiveaways();
+            }, 30000);
+            
+            // Обработчик формы создания розыгрыша
+            document.getElementById('newGiveawayForm').addEventListener('submit', handleCreateGiveaway);
+        });
+        
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_URL}/contests.json`);
+                if (!response.ok) throw new Error('Ошибка загрузки статистики');
+                
+                const data = await response.json(); const stats = data.stats;
+                updateStats(stats);
+                
+            } catch (error) {
+                console.error('Ошибка загрузки статистики:', error);
+            }
+        }
+        
+        async function loadGiveaways() {
+            try {
+                const response = await fetch(`${API_URL}/contests.json`);
+                if (!response.ok) throw new Error('Ошибка загрузки розыгрышей');
+                
+                const data = await response.json(); const giveaways = data.contests;
+                displayGiveaways(giveaways);
+                
+            } catch (error) {
+                console.error('Ошибка загрузки розыгрышей:', error);
+            }
+        }
+        
+        function updateStats(stats) {
+            document.getElementById('active-count').textContent = stats.active_giveaways || 0;
+            document.getElementById('participants-count').textContent = stats.total_participants || 0;
+            document.getElementById('completed-count').textContent = stats.completed_giveaways || 0;
+        }
+        
+        function displayGiveaways(giveaways) {
+            const loadingEl = document.getElementById('giveaways-loading');
+            const listEl = document.getElementById('giveaways-list');
+            
+            loadingEl.style.display = 'none';
+            listEl.style.display = 'grid';
+            
+            if (giveaways.length === 0) {
+                listEl.innerHTML = '<p style="text-align: center; color: #666;">Розыгрышей пока нет</p>';
+                return;
+            }
+            
+            listEl.innerHTML = giveaways.map(giveaway => createGiveawayCard(giveaway)).join('');
+        }
+        
+        function createGiveawayCard(giveaway) {
+            const statusClass = giveaway.status === 'active' ? 'status-active' : 'status-completed';
+            const statusText = giveaway.status === 'active' ? 'Активен' : 'Завершён';
+            
+            return `
+                <div class="giveaway-admin-card">
+                    <div class="card-header">
+                        <div class="card-title">${giveaway.title}</div>
+                        <div class="status-indicator ${statusClass}">${statusText}</div>
+                    </div>
+                    
+                    <div class="card-stats">
+                        <span>👥 ${giveaway.total_participants || 0} участников</span>
+                        <span>📅 ${new Date(giveaway.created_at).toLocaleDateString('ru-RU')}</span>
+                    </div>
+                    
+                    <div class="card-actions">
+                        <button class="action-btn btn-primary" onclick="viewParticipants(${giveaway.id})">
+                            📊 Участники
+                        </button>
+                        ${giveaway.status === 'active' ? `
+                            <button class="action-btn btn-success" onclick="selectWinner(${giveaway.id})">
+                                🏆 Выбрать победителя
+                            </button>
+                            <button class="action-btn btn-warning" onclick="endGiveaway(${giveaway.id})">
+                                ⏹️ Завершить
+                            </button>
+                        ` : `
+                            <button class="action-btn btn-success" onclick="rerollWinner(${giveaway.id})">
+                                🔄 Перевыбор
+                            </button>
+                        `}
+                        <button class="action-btn btn-danger" onclick="deleteGiveaway(${giveaway.id})">
+                            🗑️ Удалить
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Модальное окно
+        function openNewGiveawayModal() {
+            document.getElementById('newGiveawayModal').style.display = 'block';
+        }
+        
+        function closeNewGiveawayModal() {
+            document.getElementById('newGiveawayModal').style.display = 'none';
+            document.getElementById('newGiveawayForm').reset();
+        }
+        
+        // Обработчик создания розыгрыша
+        async function handleCreateGiveaway(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await fetch(`${API_URL}/giveaway/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) throw new Error('Ошибка создания розыгрыша');
+                
+                const result = await response.json();
+                alert('✅ Розыгрыш успешно создан!');
+                closeNewGiveawayModal();
+                loadGiveaways();
+                
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+        
+        // Действия с розыгрышами
+        async function viewParticipants(giveawayId) {
+            try {
+                const response = await fetch(`${API_URL}/giveaway/${giveawayId}/participants`);
+                if (!response.ok) throw new Error('Ошибка загрузки участников');
+                
+                const participants = await response.json();
+                alert(`Участники розыгрыша (${participants.length}):\n\n` + 
+                      participants.map(p => `${p.username || p.first_name || 'Пользователь'} (${p.telegram_id})`).join('\n'));
+                
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+        
+        async function selectWinner(giveawayId) {
+            if (!confirm('Выбрать победителя этого розыгрыша?')) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/giveaway/${giveawayId}/select-winner`, {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) throw new Error('Ошибка выбора победителя');
+                
+                const result = await response.json();
+                alert(`🏆 Победитель выбран: ${result.winner.username || result.winner.first_name}`);
+                loadGiveaways();
+                
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+        
+        async function endGiveaway(giveawayId) {
+            if (!confirm('Завершить этот розыгрыш?')) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/giveaway/${giveawayId}/end`, {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) throw new Error('Ошибка завершения розыгрыша');
+                
+                alert('✅ Розыгрыш завершён!');
+                loadGiveaways();
+                
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+        
+        async function rerollWinner(giveawayId) {
+            if (!confirm('Перевыбрать победителя?')) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/giveaway/${giveawayId}/reroll-winner`, {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) throw new Error('Ошибка перевыбора победителя');
+                
+                const result = await response.json();
+                alert(`🏆 Новый победитель: ${result.winner.username || result.winner.first_name}`);
+                loadGiveaways();
+                
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+        
+        async function deleteGiveaway(giveawayId) {
+            if (!confirm('Удалить этот розыгрыш? Это действие нельзя отменить!')) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/giveaway/${giveawayId}/delete`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) throw new Error('Ошибка удаления розыгрыша');
+                
+                alert('✅ Розыгрыш удалён!');
+                loadGiveaways();
+                
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+        
+        // Закрытие модального окна при клике вне его
+        window.onclick = function(event) {
+            const modal = document.getElementById('newGiveawayModal');
+            if (event.target === modal) {
+                closeNewGiveawayModal();
+            }
+        }
+    </script>
+</body>
+</html>
